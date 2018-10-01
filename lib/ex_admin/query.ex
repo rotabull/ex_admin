@@ -43,6 +43,13 @@ defmodule ExAdmin.Query do
   end
 
   defp paginate(query, repo, :index, params) do
+    query =
+      if query.preloads == [[:organization, :parts, :mros]] do
+        query |> Map.merge(%{preloads: [:organization]})
+      else
+        query
+      end
+
     query
     |> filter(params)
     |> repo.paginate(params)
