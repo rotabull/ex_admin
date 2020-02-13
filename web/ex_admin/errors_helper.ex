@@ -33,7 +33,7 @@ defmodule ExAdmin.ErrorsHelper do
 
   defp flatten_errors(errors_array, assoc_prefixes, prefix \\ nil)
   defp flatten_errors(%Ecto.Changeset{changes: changes, errors: errors}, assoc_prefixes, prefix) when errors == [] or is_nil(prefix) do
-    changes = Enum.reject(changes, fn({_,v}) -> is_struct(v) end)
+    changes = Enum.reject(changes, fn({_,v}) -> internal_is_struct(v) end)
     |> Enum.into(%{})
     errors ++ flatten_errors(changes, assoc_prefixes, prefix)
   end
@@ -85,6 +85,9 @@ defmodule ExAdmin.ErrorsHelper do
     end)
   end
 
-  defp is_struct(%{__struct__: _}), do: true
-  defp is_struct(_), do: false
+  # Elixir 1.10 introduced its own is_struct so we need to avoid using this
+  # name to avoid compilation errors. We still want to support older versions
+  # so we can't remove it either.
+  defp internal_is_struct(%{__struct__: _}), do: true
+  defp internal_is_struct(_), do: false
 end
